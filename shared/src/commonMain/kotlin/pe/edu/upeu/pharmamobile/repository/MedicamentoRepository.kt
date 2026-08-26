@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 
 class MedicamentoRepository{
     
-    // Lista original de medicamentos (simulando una base de datos)
+
     private val listaMedicamentos = listOf(
         Medicamento(
             id=1,
@@ -32,15 +32,15 @@ class MedicamentoRepository{
         )
     )
 
-    // PASO 6: Aplicando Flow y Asincronía
+
     fun observarMedicamentos(): Flow<List<Medicamento>> = flow {
-        // Emitimos lista vacía (simula estado "Cargando")
+
         emit(emptyList())
         
-        // Simulamos retraso de red de 1.5 segundos
+
         delay(1500)
         
-        // Emitimos la lista real
+
         emit(listaMedicamentos)
     }
 
@@ -48,17 +48,17 @@ class MedicamentoRepository{
         return listaMedicamentos
     }
 
-    // 1. Filtrado (filter) -> Solo medicamentos con stock mayor a 0
+
     fun obtenerMedicamentosDisponibles(): List<Medicamento> {
         return listaMedicamentos.filter { it.stock > 0 }
     }
 
-    // 2. Transformación (map) -> Obtener solo una lista de nombres de medicamentos
+
     fun obtenerNombresDeMedicamentos(): List<String> {
         return listaMedicamentos.map { it.nombre }
     }
 
-    // 3. Búsqueda (find) -> Buscar un medicamento en específico por su ID
+
     fun buscarMedicamentoPorId(idBuscado: Int): Medicamento? {
         return listaMedicamentos.find { it.id == idBuscado }
     }

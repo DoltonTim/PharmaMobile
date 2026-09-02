@@ -10,7 +10,7 @@ object ProductoValidator {
         val precio = precioTexto.toDoubleOrNull()
         return when {
             precioTexto.isBlank() -> "El precio es obligatorio"
-            precio == null -> "El precio debe ser un número válido"
+            precio == null || !precio.isFinite() -> "El precio debe ser un número válido"
             precio <= 0.0 -> "El precio debe ser mayor a 0"
             else -> null
         }

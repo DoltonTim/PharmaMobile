@@ -17,6 +17,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +49,17 @@ fun ProductoScreen(
 
     var mensajeResultado by remember { mutableStateOf("") }
     var esExito by remember { mutableStateOf(false) }
+
+    var tabSeleccionada by remember { mutableStateOf(0) }
+    // 0: Activos, 1: Inactivos, 2: Bajo stock
+    val titulosTabs = listOf("Activos", "Inactivos", "Bajo stock")
+
+    val productosFiltrados = when (tabSeleccionada) {
+        0 -> listaProductos.filter { it.stock > 5 }
+        1 -> listaProductos.filter { it.stock == 0 }
+        2 -> listaProductos.filter { it.stock in 1..5 }
+        else -> listaProductos
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -166,43 +179,74 @@ fun ProductoScreen(
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Productos Registrados (${listaProductos.size})",
+                    text = "Inventario de Productos (${listaProductos.size})",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                PrimaryTabRow(
+                    selectedTabIndex = tabSeleccionada,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    titulosTabs.forEachIndexed { index, titulo ->
+                        val conteo = when (index) {
+                            0 -> listaProductos.count { it.stock > 5 }
+                            1 -> listaProductos.count { it.stock == 0 }
+                            2 -> listaProductos.count { it.stock in 1..5 }
+                            else -> 0
+                        }
+                        Tab(
+                            selected = tabSeleccionada == index,
+                            onClick = { tabSeleccionada = index },
+                            text = { Text("$titulo ($conteo)") }
+                        )
+                    }
+                }
             }
         }
 
-
-        items(listaProductos) { prod ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+        if (listaProductos.isNotEmpty() && productosFiltrados.isEmpty()) {
+            item {
+                Text(
+                    text = "No hay productos en la categoría '${titulosTabs[tabSeleccionada]}'",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        } else {
+            items(productosFiltrados) { prod ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = prod.nombre,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "S/ ${prod.precio}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Stock: ${prod.stock} unidades", style = MaterialTheme.typography.bodyMedium)
                         Text(
-                            text = prod.nombre,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "S/ ${prod.precio}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                            text = "Valor Total: S/ ${prod.estadoDisponible()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "Stock: ${prod.stock} unidades", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = "Valor Total: S/ ${prod.estadoDisponible()}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }

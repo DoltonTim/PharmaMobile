@@ -56,8 +56,10 @@ fun ProductoScreen(
 
     val productosFiltrados = when (tabSeleccionada) {
         0 -> listaProductos.filter { it.stock > 5 }
+        // Comportamiento ante stock cero: Se clasifica exclusivamente como Inactivo y se excluye de "Bajo stock"
         1 -> listaProductos.filter { it.stock == 0 }
-        2 -> listaProductos.filter { it.stock in 1..5 }
+        // Condición estricta: stock <= 5 se cataloga como Bajo Stock (excluyendo el stock 0)
+        2 -> listaProductos.filter { it.stock <= 5 && it.stock != 0 }
         else -> listaProductos
     }
 
@@ -193,8 +195,10 @@ fun ProductoScreen(
                     titulosTabs.forEachIndexed { index, titulo ->
                         val conteo = when (index) {
                             0 -> listaProductos.count { it.stock > 5 }
+                            // Comportamiento ante stock cero: Se cuenta exclusivamente como Inactivo
                             1 -> listaProductos.count { it.stock == 0 }
-                            2 -> listaProductos.count { it.stock in 1..5 }
+                            // Condición estricta: stock <= 5 es Bajo Stock (excluyendo el 0)
+                            2 -> listaProductos.count { it.stock <= 5 && it.stock != 0 }
                             else -> 0
                         }
                         Tab(

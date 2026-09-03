@@ -75,162 +75,205 @@ fun App() {
     PharmaMobilTheme(
         darkTheme = darkTheme
     ) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    DrawerHeader()
+        androidx.compose.foundation.layout.BoxWithConstraints {
+            // Evaluamos el tamaño de la pantalla actual
+            val isCompact = maxWidth < 600.dp
+            val isMedium = maxWidth >= 600.dp && maxWidth < 840.dp
+            val isExpanded = maxWidth >= 840.dp
 
-                    NavigationDrawerItem(
-                        label = { Text("Inicio") },
-                        selected = pantallaActual is Screen.Inicio,
-                        onClick = {
-                            pantallaActual = Screen.Inicio
-                            scope.launch { drawerState.close() }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = "Inicio"
-                            )
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Productos") },
-                        selected = pantallaActual is Screen.Productos,
-                        onClick = {
-                            pantallaActual = Screen.Productos
-                            scope.launch { drawerState.close() }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Medication,
-                                contentDescription = "Productos"
-                            )
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Clientes") },
-                        selected = pantallaActual is Screen.Clientes,
-                        onClick = {
-                            pantallaActual = Screen.Clientes
-                            scope.launch { drawerState.close() }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Clientes"
-                            )
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        label = { Text("Pedidos") },
-                        selected = pantallaActual is Screen.Pedidos,
-                        onClick = {
-                            pantallaActual = Screen.Pedidos
-                            scope.launch { drawerState.close() }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Pedidos"
-                            )
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Modo oscuro")
-                        Switch(
-                            checked = darkTheme,
-                            onCheckedChange = { darkTheme = it }
+            // ==========================================
+            // 1. EL CONTENIDO PRINCIPAL (App Bar y Pantallas)
+            // ==========================================
+            val mainContent: @Composable () -> Unit = {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = tituloPantalla(pantallaActual))
+                            },
+                            navigationIcon = {
+                                // El menú hamburguesa SOLO se muestra en teléfonos (isCompact)
+                                if (isCompact) {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch { drawerState.open() }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = "Abrir menú"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     }
-                }
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(text = tituloPantalla(pantallaActual))
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    scope.launch { drawerState.open() }
-                                }
+                ) { paddingValues ->
+                    when (pantallaActual) {
+                        Screen.Inicio -> {
+                            Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+                                InicioScreen()
+                            }
+                        }
+                        Screen.Productos -> {
+                            Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+                                ProductoScreen(listaProductos = listaProductos)
+                            }
+                        }
+                        Screen.Clientes -> {
+                            Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+                                ClienteScreen(listaClientes = listaClientes)
+                            }
+                        }
+                        Screen.Pedidos -> {
+                            Column(
+                                modifier = Modifier.padding(paddingValues).fillMaxSize().padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Abrir menú"
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Pedidos",
+                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Pantalla de pedidos en construcción",
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            // ==========================================
+            // 2. EL MENÚ DEL DRAWER (Reutilizable)
+            // ==========================================
+            val drawerContentBlock: @Composable () -> Unit = {
+                DrawerHeader()
+
+                NavigationDrawerItem(
+                    label = { Text("Inicio") },
+                    selected = pantallaActual is Screen.Inicio,
+                    onClick = {
+                        pantallaActual = Screen.Inicio
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Inicio") }
+                )
+
+                NavigationDrawerItem(
+                    label = { Text("Productos") },
+                    selected = pantallaActual is Screen.Productos,
+                    onClick = {
+                        pantallaActual = Screen.Productos
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(imageVector = Icons.Default.Medication, contentDescription = "Productos") }
+                )
+
+                NavigationDrawerItem(
+                    label = { Text("Clientes") },
+                    selected = pantallaActual is Screen.Clientes,
+                    onClick = {
+                        pantallaActual = Screen.Clientes
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Clientes") }
+                )
+
+                NavigationDrawerItem(
+                    label = { Text("Pedidos") },
+                    selected = pantallaActual is Screen.Pedidos,
+                    onClick = {
+                        pantallaActual = Screen.Pedidos
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "Pedidos") }
+                )
+
+                Spacer(modifier = Modifier.padding(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Modo oscuro")
+                    Switch(
+                        checked = darkTheme,
+                        onCheckedChange = { darkTheme = it }
                     )
                 }
-            ) { paddingValues ->
-                when (pantallaActual) {
-                    Screen.Inicio -> {
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        ) {
-                            InicioScreen()
-                        }
-                    }
+            }
 
-                    Screen.Productos -> {
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        ) {
-                            ProductoScreen(listaProductos = listaProductos)
+            // ==========================================
+            // 3. LA DECISIÓN ADAPTATIVA (Paso 14 y 15)
+            // ==========================================
+            when {
+                // A) MODO TELÉFONO: Menú oculto (Drawer Modal)
+                isCompact -> {
+                    ModalNavigationDrawer(
+                        drawerState = drawerState,
+                        drawerContent = {
+                            ModalDrawerSheet {
+                                drawerContentBlock()
+                            }
                         }
+                    ) {
+                        mainContent()
                     }
-
-                    Screen.Clientes -> {
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        ) {
-                            ClienteScreen(listaClientes = listaClientes)
-                        }
-                    }
-
-                    Screen.Pedidos -> {
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                                .padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Pedidos",
-                                modifier = Modifier.padding(bottom = 16.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                }
+                
+                // B) MODO TABLET (Mediana): Barra lateral delgada (Navigation Rail)
+                isMedium -> {
+                    Row {
+                        androidx.compose.material3.NavigationRail {
+                            Spacer(Modifier.padding(16.dp))
+                            androidx.compose.material3.NavigationRailItem(
+                                selected = pantallaActual is Screen.Inicio,
+                                onClick = { pantallaActual = Screen.Inicio },
+                                icon = { Icon(Icons.Default.Home, "Inicio") }
                             )
-                            Text(
-                                text = "Pantalla de pedidos en construcción",
-                                style = MaterialTheme.typography.bodyLarge
+                            androidx.compose.material3.NavigationRailItem(
+                                selected = pantallaActual is Screen.Productos,
+                                onClick = { pantallaActual = Screen.Productos },
+                                icon = { Icon(Icons.Default.Medication, "Productos") }
+                            )
+                            androidx.compose.material3.NavigationRailItem(
+                                selected = pantallaActual is Screen.Clientes,
+                                onClick = { pantallaActual = Screen.Clientes },
+                                icon = { Icon(Icons.Default.Person, "Clientes") }
+                            )
+                            androidx.compose.material3.NavigationRailItem(
+                                selected = pantallaActual is Screen.Pedidos,
+                                onClick = { pantallaActual = Screen.Pedidos },
+                                icon = { Icon(Icons.Default.ShoppingCart, "Pedidos") }
+                            )
+                            Spacer(Modifier.weight(1f))
+                            Switch(
+                                checked = darkTheme,
+                                onCheckedChange = { darkTheme = it },
+                                modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }
+                        mainContent()
+                    }
+                }
+                
+                // C) MODO ESCRITORIO (Amplia): Menú lateral permanente
+                else -> {
+                    androidx.compose.material3.PermanentNavigationDrawer(
+                        drawerContent = {
+                            androidx.compose.material3.PermanentDrawerSheet {
+                                drawerContentBlock()
+                            }
+                        }
+                    ) {
+                        mainContent()
                     }
                 }
             }

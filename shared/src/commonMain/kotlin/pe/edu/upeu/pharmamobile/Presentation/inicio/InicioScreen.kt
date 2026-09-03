@@ -11,6 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import org.jetbrains.compose.resources.painterResource
+import pharmamobile.shared.generated.resources.Res
+import pharmamobile.shared.generated.resources.pharmamobil_logo
+
 @Composable
 fun InicioScreen() {
     Column(
@@ -20,6 +26,13 @@ fun InicioScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Invocación del recurso compartido (Pasos 12 y 13)
+        Image(
+            painter = painterResource(Res.drawable.pharmamobil_logo),
+            contentDescription = "Logo PharmaMobil",
+            modifier = Modifier.size(120.dp).padding(bottom = 16.dp)
+        )
+
         Text(
             text = "PharmaMobil",
             style = MaterialTheme.typography.headlineMedium

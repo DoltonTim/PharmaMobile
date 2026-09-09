@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import pe.edu.upeu.pharmamobile.model.Cliente
+import pe.edu.upeu.pharmamobile.domain.model.Cliente
 import pe.edu.upeu.pharmamobile.presentation.components.ValidatedTextField
 
 @Composable

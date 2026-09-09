@@ -37,12 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import pe.edu.upeu.pharmamobile.model.Cliente
-import pe.edu.upeu.pharmamobile.model.Producto
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
+import pe.edu.upeu.pharmamobile.domain.model.Cliente
 import pe.edu.upeu.pharmamobile.navigation.Screen
 import pe.edu.upeu.pharmamobile.presentation.cliente.ClienteScreen
 import pe.edu.upeu.pharmamobile.presentation.inicio.InicioScreen
 import pe.edu.upeu.pharmamobile.presentation.producto.ProductoScreen
+import pe.edu.upeu.pharmamobile.presentation.producto.ProductoViewModel
 import pe.edu.upeu.pharmamobile.theme.PharmaMobilTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,24 +64,17 @@ fun App() {
 
     val scope = rememberCoroutineScope()
 
-    // Listas persistentes en memoria durante la ejecución de la app
-    val listaProductos = remember {
-        mutableStateListOf(
-            Producto(1L, "Paracetamol 500mg", 5.0, 15),  // Activos (stock > 5)
-            Producto(2L, "Amoxicilina 500mg", 12.0, 0),   // Inactivos (stock == 0)
-            Producto(3L, "Ibuprofeno 400mg", 8.0, 3)      // Bajo stock (stock in 1..5)
-        )
-    }
     val listaClientes = remember { mutableStateListOf<Cliente>() }
 
-    PharmaMobilTheme(
-        darkTheme = darkTheme
-    ) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    DrawerHeader()
+    KoinContext {
+        PharmaMobilTheme(
+            darkTheme = darkTheme
+        ) {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        DrawerHeader()
 
                     NavigationDrawerItem(
                         label = { Text("Inicio") },
@@ -197,7 +192,8 @@ fun App() {
                                 .padding(paddingValues)
                                 .fillMaxSize()
                         ) {
-                            ProductoScreen(listaProductos = listaProductos)
+                            val viewModel = koinViewModel<ProductoViewModel>()
+                            ProductoScreen(viewModel = viewModel)
                         }
                     }
 
@@ -236,6 +232,7 @@ fun App() {
             }
         }
     }
+}
 }
 
 @Composable

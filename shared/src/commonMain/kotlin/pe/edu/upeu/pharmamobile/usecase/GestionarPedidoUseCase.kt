@@ -1,7 +1,7 @@
 package pe.edu.upeu.pharmamobile.usecase
 
-import pe.edu.upeu.pharmamobile.model.EstadoPedido
-import pe.edu.upeu.pharmamobile.model.Pedido
+import pe.edu.upeu.pharmamobile.domain.model.EstadoPedido
+import pe.edu.upeu.pharmamobile.domain.model.Pedido
 
 class GestionarPedidoUseCase {
 

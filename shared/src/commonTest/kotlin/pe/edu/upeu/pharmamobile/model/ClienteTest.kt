@@ -1,5 +1,6 @@
 package pe.edu.upeu.pharmamobile.model
 
+import pe.edu.upeu.pharmamobile.domain.model.Cliente
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

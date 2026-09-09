@@ -1,7 +1,7 @@
 package pe.edu.upeu.pharmamobile.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
-import pe.edu.upeu.pharmamobile.model.Medicamento
+import pe.edu.upeu.pharmamobile.domain.model.Medicamento
 import pe.edu.upeu.pharmamobile.repository.MedicamentoRepository
 import pe.edu.upeu.pharmamobile.usecase.ObtenerMedicamentosUseCase
 import androidx.compose.runtime.setValue

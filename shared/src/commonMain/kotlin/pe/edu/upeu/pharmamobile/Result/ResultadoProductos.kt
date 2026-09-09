@@ -1,6 +1,6 @@
 package pe.edu.upeu.pharmamobile.Result
 
-import pe.edu.upeu.pharmamobile.model.Producto
+import pe.edu.upeu.pharmamobile.domain.model.Producto
 
 sealed class ResultadoProductos {
     data object cargando : ResultadoProductos()

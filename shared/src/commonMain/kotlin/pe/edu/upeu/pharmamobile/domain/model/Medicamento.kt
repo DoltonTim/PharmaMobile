@@ -1,4 +1,4 @@
-package pe.edu.upeu.pharmamobile.model
+package pe.edu.upeu.pharmamobile.domain.model
 
 data class Medicamento(
     val id: Int,

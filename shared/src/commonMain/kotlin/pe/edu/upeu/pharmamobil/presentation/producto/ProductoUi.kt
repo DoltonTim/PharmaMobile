@@ -3,13 +3,14 @@ package pe.edu.upeu.pharmamobil.presentation.producto
 import kotlin.math.roundToLong
 import pe.edu.upeu.pharmamobil.domain.model.Producto
 
-
 data class ProductoUi(
     val id: Long,
     val nombre: String,
     val precio: String,
     val stock: String,
-    val requiereReposicion: Boolean
+    val requiereReposicion: Boolean,
+    val precioRaw: Double = 0.0,
+    val stockRaw: Int = 0
 )
 
 fun Producto.aUi(): ProductoUi = ProductoUi(
@@ -17,16 +18,15 @@ fun Producto.aUi(): ProductoUi = ProductoUi(
     nombre = nombre,
     precio = precio.enSoles(),
     stock = "$stock u.",
-    requiereReposicion = requiereReposicion
+    requiereReposicion = requiereReposicion,
+    precioRaw = precio,
+    stockRaw = stock
 )
 
-/** Kotlin comun no trae String.format, asi que armamos los dos decimales a mano. */
+/** Kotlin común no trae String.format, así que armamos los dos decimales a mano. */
 private fun Double.enSoles(): String {
-
     val centavos = (this * 100).roundToLong()
-
     val enteros = centavos / 100
     val decimales = (centavos % 100).toString().padStart(2, '0')
-
     return "S/ $enteros.$decimales"
 }

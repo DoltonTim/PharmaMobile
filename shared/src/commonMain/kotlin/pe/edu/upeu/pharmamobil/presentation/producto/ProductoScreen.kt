@@ -13,14 +13,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,13 +38,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.edu.upeu.pharmamobil.presentation.components.EstadoVacio
 import pe.edu.upeu.pharmamobil.presentation.components.MensajeExito
 import pe.edu.upeu.pharmamobil.presentation.components.ValidatedTextField
+import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Fase
+import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Operacion
 
 @Composable
 fun ProductoScreen(
     viewModel: ProductoViewModel,
     modifier: Modifier = Modifier
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
@@ -48,18 +54,36 @@ fun ProductoScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         FormularioProductoCard(
             formulario = uiState.formulario,
-            registrando = uiState.registrando,
+            operacion = uiState.operacion,
+            editando = uiState.editandoId != null,
             onNombreChange = viewModel::onNombreChange,
             onPrecioChange = viewModel::onPrecioChange,
             onStockChange = viewModel::onStockChange,
-            onRegistrar = viewModel::registrar
+            onGuardar = viewModel::guardar,
+            onCancelar = viewModel::cancelarEdicion
         )
 
         uiState.mensajeExito?.let {
             MensajeExito(it)
+        }
+
+        if (uiState.operacion is Operacion.Fallida) {
+            val mensaje = (uiState.operacion as Operacion.Fallida).mensaje
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = mensaje,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
 
         EncabezadoInventario(uiState.fase)
@@ -69,26 +93,22 @@ fun ProductoScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-
             when (val fase = uiState.fase) {
-
-                ProductoUiState.Fase.Cargando ->
+                Fase.Cargando ->
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-
                         CircularProgressIndicator()
-
                         Text(
-                            text = "Cargando inventario…",
+                            text = "Cargando inventario desde el servidor…",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
-                ProductoUiState.Fase.SinProductos ->
+                Fase.SinProductos ->
                     EstadoVacio(
                         icono = Icons.Default.Inventory2,
                         titulo = "Todavía no hay productos",
@@ -96,7 +116,7 @@ fun ProductoScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
 
-                is ProductoUiState.Fase.ConProductos ->
+                is Fase.ConProductos ->
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -104,11 +124,16 @@ fun ProductoScreen(
                             items = fase.productos,
                             key = { it.id }
                         ) { producto ->
-                            ProductoItem(producto)
+                            ProductoItem(
+                                producto = producto,
+                                enOperacion = uiState.operacion is Operacion.EnCurso,
+                                onEditar = { viewModel.iniciarEdicion(producto) },
+                                onEliminar = { viewModel.eliminar(producto.id) }
+                            )
                         }
                     }
 
-                is ProductoUiState.Fase.Error ->
+                is Fase.Error ->
                     EstadoVacio(
                         icono = Icons.Default.CloudOff,
                         titulo = "No pudimos cargar el inventario",
@@ -126,28 +151,28 @@ fun ProductoScreen(
     }
 }
 
-
 @Composable
 private fun FormularioProductoCard(
     formulario: FormularioProducto,
-    registrando: Boolean,
+    operacion: Operacion,
+    editando: Boolean,
     onNombreChange: (String) -> Unit,
     onPrecioChange: (String) -> Unit,
     onStockChange: (String) -> Unit,
-    onRegistrar: () -> Unit
+    onGuardar: () -> Unit,
+    onCancelar: () -> Unit
 ) {
+    val enCurso = operacion is Operacion.EnCurso
 
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
-
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Text(
-                text = "Registrar producto",
+                text = if (editando) "Editar producto" else "Registrar producto",
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -164,7 +189,6 @@ private fun FormularioProductoCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 ValidatedTextField(
                     value = formulario.precio,
                     onValueChange = onPrecioChange,
@@ -186,38 +210,53 @@ private fun FormularioProductoCard(
                 )
             }
 
-            Button(
-                onClick = onRegistrar,
-                enabled = !registrando,
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(if (registrando) "Registrando…" else "Registrar")
+                if (editando) {
+                    OutlinedButton(
+                        onClick = onCancelar,
+                        enabled = !enCurso,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+
+                Button(
+                    onClick = onGuardar,
+                    enabled = !enCurso,
+                    modifier = Modifier.weight(if (editando) 1.5f else 1f)
+                ) {
+                    val texto = when {
+                        enCurso -> "Guardando…"
+                        editando -> "Actualizar"
+                        else -> "Registrar"
+                    }
+                    Text(texto)
+                }
             }
         }
     }
 }
 
-
 @Composable
 private fun EncabezadoInventario(
-    fase: ProductoUiState.Fase
+    fase: Fase
 ) {
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
             text = "Inventario",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f)
         )
 
-        if (fase is ProductoUiState.Fase.ConProductos) {
-
+        if (fase is Fase.ConProductos) {
             val cantidad = fase.productos.size
-
             Text(
                 text = if (cantidad == 1) "1 producto" else "$cantidad productos",
                 style = MaterialTheme.typography.labelLarge,
@@ -227,28 +266,26 @@ private fun EncabezadoInventario(
     }
 }
 
-
 @Composable
 private fun ProductoItem(
-    producto: ProductoUi
+    producto: ProductoUi,
+    enOperacion: Boolean,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
 ) {
-
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
-
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
             ) {
-
                 Icon(
                     imageVector = Icons.Default.Medication,
                     contentDescription = null,
@@ -261,7 +298,6 @@ private fun ProductoItem(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-
                 Text(
                     text = producto.nombre,
                     style = MaterialTheme.typography.titleSmall
@@ -275,13 +311,11 @@ private fun ProductoItem(
             }
 
             if (producto.requiereReposicion) {
-
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer
                 ) {
-
                     Text(
                         text = "Reponer",
                         style = MaterialTheme.typography.labelSmall,
@@ -291,6 +325,32 @@ private fun ProductoItem(
                         )
                     )
                 }
+            }
+
+            IconButton(
+                onClick = onEditar,
+                enabled = !enOperacion,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            IconButton(
+                onClick = onEliminar,
+                enabled = !enOperacion,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }

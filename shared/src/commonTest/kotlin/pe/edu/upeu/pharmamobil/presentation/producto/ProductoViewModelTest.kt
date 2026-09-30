@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import pe.edu.upeu.pharmamobil.data.repository.FakeProductoRepository
 import pe.edu.upeu.pharmamobil.domain.model.Producto
+import pe.edu.upeu.pharmamobil.domain.usecase.ActualizarProductoUseCase
+import pe.edu.upeu.pharmamobil.domain.usecase.EliminarProductoUseCase
 import pe.edu.upeu.pharmamobil.domain.usecase.ListarProductosUseCase
 import pe.edu.upeu.pharmamobil.domain.usecase.RegistrarProductoUseCase
 import kotlin.test.AfterTest
@@ -39,7 +41,9 @@ class ProductoViewModelTest {
         repositorio: FakeProductoRepository = FakeProductoRepository()
     ) = ProductoViewModel(
         registrarProducto = RegistrarProductoUseCase(repositorio),
-        listarProductos = ListarProductosUseCase(repositorio)
+        listarProductos = ListarProductosUseCase(repositorio),
+        actualizarProducto = ActualizarProductoUseCase(repositorio),
+        eliminarProducto = EliminarProductoUseCase(repositorio)
     )
 
     @Test

@@ -32,4 +32,20 @@ class FakeProductoRepository(
 
         return productos.toList()
     }
+
+    override suspend fun obtener(id: Long): Producto {
+        return productos.first { it.id == id }
+    }
+
+    override suspend fun actualizar(producto: Producto): Producto {
+        val index = productos.indexOfFirst { it.id == producto.id }
+        if (index != -1) {
+            productos[index] = producto
+        }
+        return producto
+    }
+
+    override suspend fun eliminar(id: Long) {
+        productos.removeAll { it.id == id }
+    }
 }

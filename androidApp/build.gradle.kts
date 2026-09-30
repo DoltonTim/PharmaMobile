@@ -52,3 +52,7 @@ android {
         compose = true
     }
 }
+
+tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+    enabled = false
+}

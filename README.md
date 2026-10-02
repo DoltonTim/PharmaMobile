@@ -29,3 +29,8 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)â€¦
+
+## Conectividad REST
+Esta aplicación utiliza el cliente Ktor Multiplatform para su capa de red, configurado en HttpClientFactory.kt.
+Se emplea la serialización JSON mediante kotlinx.serialization (ignorando llaves desconocidas para mayor estabilidad)
+y se manejan los errores de API a través de la función genérica ejecutarLlamada, la cual mapea excepciones HTTP a un dominio de estados ErrorApi.

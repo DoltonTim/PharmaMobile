@@ -10,11 +10,26 @@ import kotlinx.coroutines.launch
 import pe.edu.upeu.pharmamobil.domain.usecase.ListarProductosUseCase
 import pe.edu.upeu.pharmamobil.domain.usecase.ProductoInvalidoException
 import pe.edu.upeu.pharmamobil.domain.usecase.RegistrarProductoUseCase
+<<<<<<< Updated upstream
 
 
 class ProductoViewModel(
     private val registrarProducto: RegistrarProductoUseCase,
     private val listarProductos: ListarProductosUseCase
+=======
+import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Fase
+import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Operacion
+import pe.edu.upeu.pharmamobil.domain.platform.Compartidor
+import pe.edu.upeu.pharmamobil.domain.model.Producto
+import pe.edu.upeu.pharmamobil.domain.usecase.comoTextoParaCompartir
+
+class ProductoViewModel(
+    private val registrarProducto: RegistrarProductoUseCase,
+    private val listarProductos: ListarProductosUseCase,
+    private val actualizarProducto: ActualizarProductoUseCase,
+    private val eliminarProducto: EliminarProductoUseCase,
+    private val compartidor: Compartidor
+>>>>>>> Stashed changes
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProductoUiState())
@@ -86,8 +101,36 @@ class ProductoViewModel(
 
         viewModelScope.launch {
 
+<<<<<<< Updated upstream
             _uiState.update {
                 it.copy(registrando = true, mensajeExito = null)
+=======
+    fun registrar() = guardar()
+
+    fun compartir(productoUi: ProductoUi) {
+        val producto = Producto(
+            id = productoUi.id,
+            nombre = productoUi.nombre,
+            precio = productoUi.precioRaw,
+            stock = productoUi.stockRaw
+        )
+        compartidor.compartir(producto.comoTextoParaCompartir())
+    }
+
+    fun eliminar(id: Long) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(operacion = Operacion.EnCurso(Operacion.Tipo.Eliminar))
+        }
+        eliminarProducto(id)
+            .onSuccess {
+                cargarProductos()
+                _uiState.update {
+                    it.copy(
+                        operacion = Operacion.Inactiva,
+                        mensajeExito = "Producto eliminado"
+                    )
+                }
+>>>>>>> Stashed changes
             }
 
             val formulario = _uiState.value.formulario

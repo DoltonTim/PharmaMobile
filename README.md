@@ -1,13 +1,13 @@
 This is a Kotlin Multiplatform project targeting Android, iOS.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
+* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if youâ€™re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
 * [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
+  - [commonMain](./shared/src/commonMain/kotlin) is for code thatâ€™s common for all targets.
   - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
+    For example, if you want to use Appleâ€™s CoreCrypto for the iOS part of your Kotlin app,
     the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
     Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
     folder is the appropriate location.
@@ -28,4 +28,29 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 
 ---
 
+<<<<<<< Updated upstream
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+=======
+Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)â€¦
+
+## Conectividad REST
+Esta aplicación utiliza el cliente Ktor Multiplatform para su capa de red, configurado en HttpClientFactory.kt.
+Se emplea la serialización JSON mediante kotlinx.serialization (ignorando llaves desconocidas para mayor estabilidad)
+y se manejan los errores de API a través de la función genérica ejecutarLlamada, la cual mapea excepciones HTTP a un dominio de estados ErrorApi.
+
+## Capacidades nativas
+El proyecto implementa la integración de capacidades nativas por plataforma mediante el mecanismo `expect/actual` y la inyección de dependencias con módulos de Koin (`platformModule`).
+
+### Archivos de cada plataforma:
+- **Formateador de moneda (`formatearSoles`)**:
+  - `shared/src/commonMain/kotlin/pe/edu/upeu/pharmamobil/platform/Formato.kt` (expect)
+  - `shared/src/androidMain/kotlin/pe/edu/upeu/pharmamobil/platform/Formato.android.kt` (actual)
+  - `shared/src/iosMain/kotlin/pe/edu/upeu/pharmamobil/platform/Formato.ios.kt` (actual)
+- **Acción Compartir (`Compartidor`)**:
+  - `shared/src/commonMain/kotlin/pe/edu/upeu/pharmamobil/domain/platform/Compartidor.kt` (interface común)
+  - `shared/src/androidMain/kotlin/pe/edu/upeu/pharmamobil/platform/CompartidorAndroid.kt` (implementación Android)
+  - `shared/src/iosMain/kotlin/pe/edu/upeu/pharmamobil/platform/CompartidorIos.kt` (implementación iOS)
+- **Módulos de Inyección por plataforma (`platformModule`)**:
+  - `shared/src/androidMain/kotlin/pe/edu/upeu/pharmamobil/di/PlatformModule.android.kt`
+  - `shared/src/iosMain/kotlin/pe/edu/upeu/pharmamobil/di/PlatformModule.ios.kt`
+>>>>>>> Stashed changes

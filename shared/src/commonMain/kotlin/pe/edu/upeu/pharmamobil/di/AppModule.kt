@@ -30,7 +30,11 @@ val domainModule = module {
 }
 
 val presentationModule = module {
+<<<<<<< Updated upstream
     viewModel { ProductoViewModel(get(), get()) }
+=======
+    viewModel { ProductoViewModel(get(), get(), get(), get(), get()) }
+>>>>>>> Stashed changes
     viewModel { ClienteViewModel(get(), get()) }
 }
 

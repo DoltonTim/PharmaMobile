@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -104,7 +105,17 @@ fun ProductoScreen(
                             items = fase.productos,
                             key = { it.id }
                         ) { producto ->
+<<<<<<< Updated upstream
                             ProductoItem(producto)
+=======
+                            ProductoItem(
+                                producto = producto,
+                                enOperacion = uiState.operacion is Operacion.EnCurso,
+                                onEditar = { viewModel.iniciarEdicion(producto) },
+                                onEliminar = { viewModel.eliminar(producto.id) },
+                                onCompartir = { viewModel.compartir(producto) }
+                            )
+>>>>>>> Stashed changes
                         }
                     }
 
@@ -230,7 +241,15 @@ private fun EncabezadoInventario(
 
 @Composable
 private fun ProductoItem(
+<<<<<<< Updated upstream
     producto: ProductoUi
+=======
+    producto: ProductoUi,
+    enOperacion: Boolean,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit,
+    onCompartir: () -> Unit
+>>>>>>> Stashed changes
 ) {
 
     Card(
@@ -292,6 +311,48 @@ private fun ProductoItem(
                     )
                 }
             }
+<<<<<<< Updated upstream
+=======
+
+            IconButton(
+                onClick = onCompartir,
+                enabled = !enOperacion,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Compartir",
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            IconButton(
+                onClick = onEditar,
+                enabled = !enOperacion,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            IconButton(
+                onClick = onEliminar,
+                enabled = !enOperacion,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+>>>>>>> Stashed changes
         }
     }
 }

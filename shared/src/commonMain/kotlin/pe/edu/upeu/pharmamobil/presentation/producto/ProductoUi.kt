@@ -3,6 +3,10 @@ package pe.edu.upeu.pharmamobil.presentation.producto
 import kotlin.math.roundToLong
 import pe.edu.upeu.pharmamobil.domain.model.Producto
 
+<<<<<<< Updated upstream
+=======
+import pe.edu.upeu.pharmamobil.platform.formatearSoles
+>>>>>>> Stashed changes
 
 data class ProductoUi(
     val id: Long,
@@ -15,10 +19,11 @@ data class ProductoUi(
 fun Producto.aUi(): ProductoUi = ProductoUi(
     id = id,
     nombre = nombre,
-    precio = precio.enSoles(),
+    precio = formatearSoles(precio),
     stock = "$stock u.",
     requiereReposicion = requiereReposicion
 )
+<<<<<<< Updated upstream
 
 /** Kotlin comun no trae String.format, asi que armamos los dos decimales a mano. */
 private fun Double.enSoles(): String {
@@ -30,3 +35,5 @@ private fun Double.enSoles(): String {
 
     return "S/ $enteros.$decimales"
 }
+=======
+>>>>>>> Stashed changes

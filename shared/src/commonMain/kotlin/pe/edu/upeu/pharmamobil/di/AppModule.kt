@@ -1,5 +1,8 @@
 package pe.edu.upeu.pharmamobil.di
 
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import pe.edu.upeu.pharmamobil.data.local.AlmacenSeguro
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -20,15 +23,23 @@ import pe.edu.upeu.pharmamobil.domain.usecase.RegistrarProductoUseCase
 import pe.edu.upeu.pharmamobil.presentation.cliente.ClienteViewModel
 import pe.edu.upeu.pharmamobil.presentation.producto.ProductoViewModel
 
+import pe.edu.upeu.pharmamobil.data.repository.AuthRepositorioRest
+import pe.edu.upeu.pharmamobil.domain.repository.AuthRepository
+import pe.edu.upeu.pharmamobil.domain.usecase.CerrarSesionUseCase
+import pe.edu.upeu.pharmamobil.domain.usecase.IniciarSesionUseCase
+import pe.edu.upeu.pharmamobil.domain.usecase.ObtenerSesionGuardadaUseCase
+import pe.edu.upeu.pharmamobil.presentation.sesion.SesionViewModel
+
 const val CATEGORIA_POR_DEFECTO: Long = 1L
 
 val dataModule = module {
-    single { crearHttpClient(get()) }
+    single<HttpClient> { crearHttpClient(get<HttpClientEngine>(), get<AlmacenSeguro>()) }
     single { ProductoApi(get()) }
     single<ProductoRepository> {
         ProductoRepositorioRest(get(), CATEGORIA_POR_DEFECTO)
     }
     single<ClienteRepository> { ClienteRepositorioEnMemoria() }
+    single<AuthRepository> { AuthRepositorioRest(get(), get()) }
 }
 
 val domainModule = module {
@@ -38,11 +49,15 @@ val domainModule = module {
     factory { EliminarProductoUseCase(get()) }
     factory { RegistrarClienteUseCase(get()) }
     factory { ListarClientesUseCase(get()) }
+    factory { IniciarSesionUseCase(get()) }
+    factory { ObtenerSesionGuardadaUseCase(get()) }
+    factory { CerrarSesionUseCase(get()) }
 }
 
 val presentationModule = module {
     viewModel { ProductoViewModel(get(), get(), get(), get()) }
     viewModel { ClienteViewModel(get(), get()) }
+    viewModel { SesionViewModel(get(), get(), get()) }
 }
 
 expect val platformModule: Module

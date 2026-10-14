@@ -28,4 +28,19 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Autenticación
+
+El sistema implementa autenticación basada en JSON Web Tokens (JWT) conectándose al backend PharmaSoft (`POST /api/v1/auth/login`).
+El token obtenido se conserva de manera segura mediante `AlmacenSeguro`:
+- **Android:** Cifrado con `EncryptedSharedPreferences` y llaves custodiadas en el Android Keystore (`AES-256`).
+- **iOS:** Almacenamiento seguro por plataforma (`Keychain`).
+
+El cliente HTTP Ktor adjunta automáticamente el token en cada petición autorizada mediante el plugin `Auth` (`Bearer <token>`) y cuenta con saneamiento de cabeceras en depuración (`sanitizeHeader` en el plugin `Logging`).
+
+### Usuarios de prueba
+
+| Usuario | Contraseña | Rol | Permisos |
+| :--- | :--- | :--- | :--- |
+| **admin** | `Admin123` | `ADMIN` | Los ocho permisos del sistema (control total). |
+| **vendedor** | `Vendedor123` | `VENDEDOR` | Catálogo solo lectura; clientes y ventas completos. |
+| **almacen** | `Almacen123` | `ALMACENERO` | Solo catálogo: leer y escribir (`CATALOGO_LEER`, `CATALOGO_ESCRIBIR`). |

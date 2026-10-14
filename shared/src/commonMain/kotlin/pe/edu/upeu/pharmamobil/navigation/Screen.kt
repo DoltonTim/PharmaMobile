@@ -1,6 +1,8 @@
 package pe.edu.upeu.pharmamobil.navigation
 
 sealed class Screen {
+    data object Login : Screen()
+
     data object Inicio : Screen()
 
     data object Productos : Screen()

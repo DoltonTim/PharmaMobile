@@ -44,6 +44,7 @@ import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Operacion
 @Composable
 fun ProductoScreen(
     viewModel: ProductoViewModel,
+    puedeRegistrar: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,16 +55,18 @@ fun ProductoScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        FormularioProductoCard(
-            formulario = uiState.formulario,
-            operacion = uiState.operacion,
-            editando = uiState.editandoId != null,
-            onNombreChange = viewModel::onNombreChange,
-            onPrecioChange = viewModel::onPrecioChange,
-            onStockChange = viewModel::onStockChange,
-            onGuardar = viewModel::guardar,
-            onCancelar = viewModel::cancelarEdicion
-        )
+        if (puedeRegistrar) {
+            FormularioProductoCard(
+                formulario = uiState.formulario,
+                operacion = uiState.operacion,
+                editando = uiState.editandoId != null,
+                onNombreChange = viewModel::onNombreChange,
+                onPrecioChange = viewModel::onPrecioChange,
+                onStockChange = viewModel::onStockChange,
+                onGuardar = viewModel::guardar,
+                onCancelar = viewModel::cancelarEdicion
+            )
+        }
 
         uiState.mensajeExito?.let {
             MensajeExito(it)

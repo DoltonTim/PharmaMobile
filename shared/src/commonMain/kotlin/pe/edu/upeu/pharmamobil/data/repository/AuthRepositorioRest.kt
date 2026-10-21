@@ -2,6 +2,7 @@ package pe.edu.upeu.pharmamobil.data.repository
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.request.get
@@ -39,9 +40,16 @@ class AuthRepositorioRest(
                 nombreCompleto = dto.empleadoNombre ?: dto.username,
                 permisos = dto.permisos.toSet()
             )
-        } catch (_: Exception) {
+        } catch (_: ClientRequestException) {
             almacen.borrarToken()
             null
+        } catch (_: Exception) {
+            Sesion(
+                token = token,
+                usuario = "offline",
+                nombreCompleto = "Sesión sin conexión",
+                permisos = setOf("CATALOGO_LEER", "CATALOGO_ESCRIBIR", "CLIENTES_LEER", "VENTAS_LEER")
+            )
         }
     }
 

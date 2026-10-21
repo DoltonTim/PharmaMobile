@@ -8,13 +8,30 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import pe.edu.upeu.pharmamobil.data.mapper.toDomain
+import pe.edu.upeu.pharmamobil.data.mapper.toRequest
 import pe.edu.upeu.pharmamobil.data.remote.dto.PaginaResponseDto
 import pe.edu.upeu.pharmamobil.data.remote.dto.ProductoRequestDto
 import pe.edu.upeu.pharmamobil.data.remote.dto.ProductoResponseDto
+import pe.edu.upeu.pharmamobil.domain.error.ErrorApiException
+import pe.edu.upeu.pharmamobil.domain.model.Producto
 
-class ProductoApi(private val client: HttpClient) {
+open class ProductoApi(
+    private val client: HttpClient,
+    private val categoriaPorDefecto: Long = 1L
+) {
 
-    suspend fun listar(
+    open suspend fun listar(): List<Producto> =
+        ejecutar {
+            listarPagina().contenido.map { it.toDomain() }
+        }
+
+    open suspend fun registrar(producto: Producto): Producto =
+        ejecutar {
+            crear(producto.toRequest(categoriaPorDefecto)).toDomain()
+        }
+
+    suspend fun listarPagina(
         pagina: Int = 0,
         tamanio: Int = 20
     ): PaginaResponseDto<ProductoResponseDto> = client.get("productos") {
@@ -38,4 +55,10 @@ class ProductoApi(private val client: HttpClient) {
     suspend fun eliminar(id: Long) {
         client.delete("productos/$id")
     }
+
+    private suspend fun <T> ejecutar(bloque: suspend () -> T): T =
+        ejecutarLlamada(bloque).getOrElse { fallo ->
+            if (fallo is ErrorApiException) throw fallo.error
+            throw fallo
+        }
 }

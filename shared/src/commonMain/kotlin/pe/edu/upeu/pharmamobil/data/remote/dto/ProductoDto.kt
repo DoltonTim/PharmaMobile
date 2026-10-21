@@ -7,7 +7,7 @@ data class ProductoRequestDto(
     val nombre: String,
     val precio: Double,
     val stock: Int,
-    val estado: Boolean = true,
+    val estado: Boolean,
     val categoriaId: Long
 )
 

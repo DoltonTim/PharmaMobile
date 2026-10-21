@@ -26,9 +26,14 @@ fun crearHttpClient(
     almacen: AlmacenSeguro,
     esDepuracion: Boolean = true
 ): HttpClient = HttpClient(motor) {
+    expectSuccess = true
 
     install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true })
+        json(Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            isLenient = true
+        })
     }
 
     defaultRequest {

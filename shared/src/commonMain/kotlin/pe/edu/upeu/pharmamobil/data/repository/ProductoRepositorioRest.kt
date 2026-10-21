@@ -13,7 +13,7 @@ class ProductoRepositorioRest(
 ) : ProductoRepository {
 
     override suspend fun listar(): List<Producto> =
-        ejecutarLlamada { api.listar().contenido.map { it.toDomain() } }.getOrThrow()
+        ejecutarLlamada { api.listarPagina().contenido.map { it.toDomain() } }.getOrThrow()
 
     override suspend fun obtener(id: Long): Producto =
         ejecutarLlamada { api.obtener(id).toDomain() }.getOrThrow()

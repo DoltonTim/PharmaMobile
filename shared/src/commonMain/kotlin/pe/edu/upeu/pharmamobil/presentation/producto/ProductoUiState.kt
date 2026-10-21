@@ -1,9 +1,14 @@
 package pe.edu.upeu.pharmamobil.presentation.producto
 
+import pe.edu.upeu.pharmamobil.domain.model.Producto
+
 data class ProductoUiState(
+    val productos: List<Producto> = emptyList(),
     val fase: Fase = Fase.Cargando,
     val formulario: FormularioProducto = FormularioProducto(),
     val operacion: Operacion = Operacion.Inactiva,
+    val sincronizando: Boolean = false,
+    val avisoRed: String? = null,
     val mensajeExito: String? = null,
     val editandoId: Long? = null
 ) {

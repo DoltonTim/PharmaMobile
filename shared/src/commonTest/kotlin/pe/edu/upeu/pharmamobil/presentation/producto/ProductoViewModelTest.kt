@@ -40,6 +40,7 @@ class ProductoViewModelTest {
     private fun nuevoViewModel(
         repositorio: FakeProductoRepository = FakeProductoRepository()
     ) = ProductoViewModel(
+        repositorio = repositorio,
         registrarProducto = RegistrarProductoUseCase(repositorio),
         listarProductos = ListarProductosUseCase(repositorio),
         actualizarProducto = ActualizarProductoUseCase(repositorio),
@@ -73,17 +74,15 @@ class ProductoViewModelTest {
     }
 
     @Test
-    fun pasaAFaseErrorCuandoElRepositorioFalla() = runTest {
+    fun informaAvisoDeRedCuandoSincronizarFallaPeroMantieneDatosLocales() = runTest {
 
         val repositorio = FakeProductoRepository().apply {
             fallaAlListar = IllegalStateException("Sin conexión")
         }
 
-        val fase = assertIs<ProductoUiState.Fase.Error>(
-            nuevoViewModel(repositorio).uiState.value.fase
-        )
+        val viewModel = nuevoViewModel(repositorio)
 
-        assertEquals("Sin conexión", fase.mensaje)
+        assertEquals("Sin conexión: mostrando datos guardados", viewModel.uiState.value.avisoRed)
     }
 
     @Test

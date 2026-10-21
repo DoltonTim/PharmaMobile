@@ -1,5 +1,7 @@
 package pe.edu.upeu.pharmamobil.di
 
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -8,8 +10,11 @@ import kotlinx.coroutines.test.setMain
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import pe.edu.upeu.pharmamobil.data.local.AlmacenSeguro
 import pe.edu.upeu.pharmamobil.data.repository.ClienteRepositorioEnMemoria
-import pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioRest
+import pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioOffline
+import pe.edu.upeu.pharmamobil.db.PharmaDb
 import pe.edu.upeu.pharmamobil.domain.repository.ClienteRepository
 import pe.edu.upeu.pharmamobil.domain.repository.ProductoRepository
 import pe.edu.upeu.pharmamobil.domain.usecase.ActualizarProductoUseCase
@@ -49,8 +54,24 @@ class AppModuleTest {
         Dispatchers.resetMain()
     }
 
+    private val testPlatformModule = module {
+        single<SqlDriver> {
+            JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also {
+                PharmaDb.Schema.create(it)
+            }
+        }
+        single<AlmacenSeguro> {
+            object : AlmacenSeguro {
+                private var token: String? = null
+                override fun guardarToken(token: String) { this.token = token }
+                override fun leerToken(): String? = token
+                override fun borrarToken() { token = null }
+            }
+        }
+    }
+
     private fun grafoCompleto(): Koin = startKoin {
-        modules(dataModule, domainModule, presentationModule, platformModule)
+        modules(dataModule, domainModule, presentationModule, platformModule, testPlatformModule)
     }.koin
 
     @Test
@@ -58,7 +79,7 @@ class AppModuleTest {
 
         val koin = grafoCompleto()
 
-        assertIs<ProductoRepositorioRest>(koin.get<ProductoRepository>())
+        assertIs<ProductoRepositorioOffline>(koin.get<ProductoRepository>())
         assertIs<ClienteRepositorioEnMemoria>(koin.get<ClienteRepository>())
     }
 

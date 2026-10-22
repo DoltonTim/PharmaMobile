@@ -10,7 +10,8 @@ data class ProductoUiState(
     val sincronizando: Boolean = false,
     val avisoRed: String? = null,
     val mensajeExito: String? = null,
-    val editandoId: Long? = null
+    val editandoId: Long? = null,
+    val textoAntiguedadSincronizacion: String = "Nunca sincronizado"
 ) {
 
     /** Fases excluyentes del inventario: solo una puede estar activa. */

@@ -119,6 +119,7 @@ fun ProductoScreen(
         EncabezadoInventario(
             fase = uiState.fase,
             sincronizando = uiState.sincronizando,
+            textoAntiguedad = uiState.textoAntiguedadSincronizacion,
             onSincronizar = viewModel::sincronizar
         )
 
@@ -279,17 +280,24 @@ private fun FormularioProductoCard(
 private fun EncabezadoInventario(
     fase: Fase,
     sincronizando: Boolean,
+    textoAntiguedad: String,
     onSincronizar: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "Inventario",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.weight(1f)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Inventario",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = textoAntiguedad,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         if (fase is Fase.ConProductos) {
             val cantidad = fase.productos.size

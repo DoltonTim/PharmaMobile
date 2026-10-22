@@ -37,9 +37,7 @@ class ProductoViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun nuevoViewModel(
-        repositorio: FakeProductoRepository = FakeProductoRepository()
-    ) = ProductoViewModel(
+    private fun nuevoViewModel(repositorio: FakeProductoRepository = FakeProductoRepository()) = ProductoViewModel(repositorio = repositorio,
         registrarProducto = RegistrarProductoUseCase(repositorio),
         listarProductos = ListarProductosUseCase(repositorio),
         actualizarProducto = ActualizarProductoUseCase(repositorio),
@@ -128,3 +126,4 @@ class ProductoViewModelTest {
         )
     }
 }
+

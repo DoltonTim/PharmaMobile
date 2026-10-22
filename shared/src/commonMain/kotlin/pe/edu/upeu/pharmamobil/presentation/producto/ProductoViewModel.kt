@@ -19,6 +19,8 @@ import pe.edu.upeu.pharmamobil.domain.usecase.RegistrarProductoUseCase
 import pe.edu.upeu.pharmamobil.domain.usecase.resultadoDe
 import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Fase
 import pe.edu.upeu.pharmamobil.presentation.producto.ProductoUiState.Operacion
+import pe.edu.upeu.pharmamobil.util.formatearAntiguedad
+import pe.edu.upeu.pharmamobil.util.tiempoActualMillis
 
 class ProductoViewModel(
     private val repositorio: ProductoRepository,
@@ -30,6 +32,7 @@ class ProductoViewModel(
 
     private val _uiState = MutableStateFlow(ProductoUiState())
     val uiState: StateFlow<ProductoUiState> = _uiState.asStateFlow()
+    private var ultimoSyncTimestamp: Long? = null
 
     init {
         viewModelScope.launch {
@@ -46,14 +49,26 @@ class ProductoViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(sincronizando = true) }
             val resultado = resultadoDe { repositorio.sincronizar() }
+            if (resultado.isSuccess) {
+                ultimoSyncTimestamp = tiempoActualMillis()
+            }
             _uiState.update {
                 it.copy(
                     sincronizando = false,
+                    textoAntiguedadSincronizacion = formatearAntiguedad(ultimoSyncTimestamp),
                     avisoRed = resultado.exceptionOrNull()?.let { fallo ->
                         "Sin conexión: mostrando datos guardados"
                     }
                 )
             }
+        }
+    }
+
+    fun simularAntiguedad(horasAtras: Long) {
+        val simulado = tiempoActualMillis() - (horasAtras * 60 * 60 * 1000)
+        ultimoSyncTimestamp = simulado
+        _uiState.update {
+            it.copy(textoAntiguedadSincronizacion = formatearAntiguedad(simulado))
         }
     }
 
